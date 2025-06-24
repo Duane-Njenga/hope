@@ -1,61 +1,69 @@
 // src/context/AuthContext.jsx
+
 import React, { createContext, useState, useContext, useEffect } from 'react';
+// Make sure the path to your firebase config file is correct
+import { auth, googleProvider, onAuthStateChanged } from '../firebase'; 
+import { signInWithPopup, signOut } from 'firebase/auth';
 
 // 1. Create the Context
-const AuthContext = createContext(null);
+const AuthContext = createContext();
 
 // 2. Create the Provider Component
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('hopeconnect_token'));
+  const [isLoading, setIsLoading] = useState(true); // To handle initial loading state
 
-  // This effect runs when the app loads to check for a persistent session
   useEffect(() => {
-    if (token) {
-      // In a real app, you would make an API call here to `/api/user/profile`
-      // to verify the token and get the user's data.
-      // For now, we'll simulate it by creating a mock user.
-      console.log("Found a token, attempting to restore session...");
-      setUser({ 
-        displayName: 'Returning User', 
-        photoURL: 'https://i.pravatar.cc/150' // A placeholder avatar
-      });
-    }
-  }, [token]);
+    // onAuthStateChanged is the core Firebase listener.
+    // It automatically detects when a user signs in or out.
+    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
+      // The `firebaseUser` object contains all user info (displayName, email, photoURL, uid, etc.)
+      setUser(firebaseUser);
+      // We're done checking the auth state, so we can now show the app.
+      setIsLoading(false); 
+    });
 
-  // The login function will be called from the Navbar.
-  // In a real app, this is where you'd redirect to your backend's Google auth URL.
+    // This is a cleanup function that runs when the component unmounts
+    // to prevent memory leaks.
+    return () => unsubscribe();
+  }, []); // The empty dependency array ensures this runs only once on mount.
+
+  // This is the REAL Firebase Google login function
   const loginWithGoogle = async () => {
-    console.log("Simulating Google Login...");
-    // --- THIS IS THE CRITICAL PART ---
-    // In your real app, this function would redirect to your Flask backend:
-    // window.location.href = 'https://your-backend.onrender.com/auth/google/login';
-
-    // For this demo, we'll simulate a successful login from the backend.
-    // The backend would redirect back with a token, which we'd then save.
-    const fakeToken = 'fake-jwt-token-from-backend.' + Math.random();
-    const mockUser = {
-      displayName: 'Claire Kimani', // Mock user data
-      email: 'claire.k@example.com',
-      photoURL: 'https://i.pravatar.cc/150'
-    };
-    
-    localStorage.setItem('hopeconnect_token', fakeToken);
-    setToken(fakeToken);
-    setUser(mockUser);
+    try {
+      await signInWithPopup(auth, googleProvider);
+      // After login, the `onAuthStateChanged` listener above will automatically
+      // update the `user` state for us.
+    } catch (error) {
+      console.error("Error during Google login:", error);
+    }
   };
 
-  const logout = () => {
-    console.log("Logging out...");
-    localStorage.removeItem('hopeconnect_token');
-    setToken(null);
-    setUser(null);
+  // This is the REAL Firebase logout function
+  const logout = async () => {
+    try {
+      await signOut(auth);
+      // After logout, `onAuthStateChanged` will set the user state to null.
+    } catch (error) {
+      console.error("Error during logout:", error);
+    }
   };
 
   // The value provided to consuming components
-  const value = { user, token, loginWithGoogle, logout };
+  const value = { 
+    user,           // This is now the full Firebase user object, or null
+    isLoading,      // Use this to show a loading spinner if needed
+    loginWithGoogle, 
+    logout 
+  };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  // Don't render the rest of the app until Firebase has checked the auth state.
+  // This prevents a "flash" where the login button shows briefly for a logged-in user.
+  return (
+    <AuthContext.Provider value={value}>
+      {!isLoading && children}
+    </AuthContext.Provider>
+  );
 };
 
 // 3. Create a custom hook to easily use the context
