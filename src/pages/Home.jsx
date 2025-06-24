@@ -31,7 +31,7 @@ const HomePage = () => {
           <div className="container text-center">
             <h2 style={{ fontSize: '2.5rem', color: 'var(--color-primary)', marginBottom: '1rem' }}>Our Mission</h2>
             <p style={{ fontSize: '1.125rem', color: 'var(--color-light-text)', maxWidth: '45rem', margin: '0 auto' }}>
-              To build a responsive and engaging platform that empowers NGOs and individuals to provide immediate, effective, and heartfelt support.
+             It takes a village ~ be part of it!!
             </p>
           </div>
         </section>

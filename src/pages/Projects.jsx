@@ -8,7 +8,7 @@ const ProjectsPage = () => {
     {
       title: "Winter Clothing Drive 2024",
       description: "Collecting warm clothing, blankets, and essentials for refugee families and street people to help them endure the cold season.",
-      image: "https://images.unsplash.com/photo-1606572522231-4a84bce13425?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1170&q=80"
+      image: "https://www.ig.ca/content/dam/investorsgroup/more/2023/12/family-with-gifts.jpg"
     },
     {
       title: "Community Kitchen Launch",
