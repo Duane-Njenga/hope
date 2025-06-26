@@ -7,50 +7,51 @@ import LoginPage from "./pages/LoginPage";
 import ProjectsPage from "./pages/Projects";
 import RegisterPage from "./pages/Register";
 import VolunteerPage from "./pages/Volunteer";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const routes = [
-    {
-        path:"/",
-        element: <App />,
-        // errorElement:<ErrorPage />,
-        children:[
-            {
-                path:"/",
-                element:<HomePage />
-            },
-            {
-                path:"/about",
-                element:<AboutPage/>
-            },
-            {
-                path: "/projects",
-                element: <ProjectsPage />
-            },
-            {
-                path: "/donate",
-                element: <DonatePage/>
-            },
-            {
-                path: "/volunteer",
-                element: <VolunteerPage/>
-            },
-            {
-                path: "/contact",
-                element: <ContactPage />
-            },
-            {
-                path:"/register",
-                element:<RegisterPage />
-            },
-            {
-                path:"/login",
-                element:<LoginPage />
-            },
-        ]
+  {
+    path: "/login",
+    element: <LoginPage />,
+  },
+  {
+    path: "/register",
+    element: <RegisterPage />,
+  },
+  {
+    path: "/",
+    element: (
+      <ProtectedRoute>
+        <App />
+      </ProtectedRoute>
+    ),
+    children: [
+      {
+        path: "/",
+        element: <HomePage />,
+      },
+      {
+        path: "/about",
+        element: <AboutPage />,
+      },
+      {
+        path: "/projects",
+        element: <ProjectsPage />,
+      },
+      {
+        path: "/donate",
+        element: <DonatePage />,
+      },
+      {
+        path: "/volunteer",
+        element: <VolunteerPage />,
+      },
+      {
+        path: "/contact",
+        element: <ContactPage />,
+      },
+    ],
+  },
+];
 
-
-    },
-    
-]
-
-export default routes
+export default routes;

@@ -1,7 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { auth, googleProvider, onAuthStateChanged } from "../firebase";
 import { signInWithPopup, signOut } from "firebase/auth";
-import axios from "axios";
 
 const AuthContext = createContext();
 
@@ -14,15 +13,23 @@ export const AuthProvider = ({ children }) => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
         try {
-          const res = await axios.post("http://localhost:5555/auth/firebase-login", {
-            mail: firebaseUser.email,
+          const res = await fetch("http://localhost:5555/auth/firebase-login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ mail: firebaseUser.email }),
           });
 
-          setToken(res.data.access_token);
+          if (!res.ok) {
+            throw new Error("Backend login failed");
+          }
+
+          const data = await res.json();
+
+          setToken(data.access_token);
           setUser({
             email: firebaseUser.email,
-            id: res.data.id,
-            role: res.data.role,
+            id: data.id,
+            role: data.role,
           });
         } catch (err) {
           console.error("Backend login failed:", err);
@@ -58,8 +65,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const value = {
-    user,
-    token,
+    user,setUser,
+    token,setToken,
     isLoading,
     loginWithGoogle,
     logout,

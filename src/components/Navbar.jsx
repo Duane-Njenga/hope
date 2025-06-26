@@ -14,7 +14,7 @@ const links = [
 function Navbar(){
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-
+  
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const dropdownRef = useRef();
@@ -62,13 +62,14 @@ function Navbar(){
 
           {user && (
             <div className="relative" ref={dropdownRef}>
-              <img src={user.photoURL} alt={user.displayName} className="h-10 w-10 rounded-full cursor-pointer hover:ring-2 hover:ring-blue-500 shadow-md" onClick={() => setDropdownOpen(!dropdownOpen)} />
+              <img src="https://i.pinimg.com/736x/87/22/ec/8722ec261ddc86a44e7feb3b46836c10.jpg"
+                alt={user.displayName} className="h-10 w-10 rounded-full cursor-pointer hover:ring-2 hover:ring-blue-500 shadow-md" onClick={() => setDropdownOpen(!dropdownOpen)} />
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border py-2 z-50">
                   <div className="px-4 py-3 border-b text-sm text-gray-600">
-                    Signed in as <br /><strong className="text-gray-900">{user.displayName}</strong>
+                    Signed in as <br /><strong className="text-gray-900">{user.email}</strong>
                   </div>
-                  <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition">
+                  <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 transition cursor-pointer">
                     Logout
                   </button>
                 </div>
@@ -87,7 +88,7 @@ function Navbar(){
           ))}
 
           {user && (
-            <button onClick={handleLogout} className="block w-full text-left px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md">
+            <button onClick={handleLogout} className="block w-full border-2 text-left px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 rounded-md cursor-pointer">
               Logout
             </button>
           )}

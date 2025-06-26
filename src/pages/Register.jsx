@@ -3,7 +3,7 @@ import { FaUser, FaEnvelope, FaLock, FaEye, FaEyeSlash, FaGoogle } from 'react-i
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const RegisterPage = () => {
+function RegisterPage() {
   const [fName, setFName] = useState('');
   const [lName, setLName] = useState('');
   const [email, setEmail] = useState('');
@@ -13,70 +13,27 @@ const RegisterPage = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const { user, loginWithGoogle } = useAuth()
+  const navigate = useNavigate()
 
-  // Mock authentication functions - replace with your actual implementation
-    const { user, loginWithGoogle } = useAuth()
-    const navigate = useNavigate()
 
-  const emailPasswordRegister = async (name, email, password) => {
-    // Mock implementation - replace with actual registration logic
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        if (email && password && name) {
-          resolve({ email, name });
-        } else {
-          reject(new Error('Registration failed'));
-        }
-      }, 1000);
-    });
-  };
-
-  
-
-  useEffect(() => {
-    if (user) {
+    useEffect(() => {
+      if (user) {
       navigate('/');
     }
   }, [user]);
-
-  const validatePassword = (password) => {
-    const minLength = 8;
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasNumbers = /\d/.test(password);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
-    if (password.length < minLength) {
-      return 'Password must be at least 8 characters long';
-    }
-    if (!hasUpperCase) {
-      return 'Password must contain at least one uppercase letter';
-    }
-    if (!hasLowerCase) {
-      return 'Password must contain at least one lowercase letter';
-    }
-    if (!hasNumbers) {
-      return 'Password must contain at least one number';
-    }
-    if (!hasSpecialChar) {
-      return 'Password must contain at least one special character';
-    }
-    return null;
-  };
-
     
     const handleSubmit = async (e) => {
         e.preventDefault();
         const newUser = {
             fName:fName,
             lName: lName,
-            eamial: email,
+            emial: email,
             password:password
         }
-        console.log(newUser);
         
     try {
-        const response = await fetch('http://127.0.0.1:5555/signup', {
+        const response = await fetch('http://localhost:5555/auth/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -84,12 +41,15 @@ const RegisterPage = () => {
             body: JSON.stringify(newUser)
         });
 
-        // if (response.ok) {
-        //     navigate("/");
-        // } else {
-        //     console.error('Failed to create account');
-        // }
+      if (response.ok) {
+          console.log(response.json())
+          navigate("/");
+          
+        } else {
+            console.error('Failed to create account');
+        }
     } catch (error) {
+        setError(error)
         console.error('Error creating account:', error);
     }
 }
