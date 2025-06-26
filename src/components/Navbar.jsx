@@ -1,78 +1,74 @@
-// src/components/Navbar.jsx
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
-const Navbar = () => {
+const links = [
+  { to: "/", label: "Home" },
+  { to: "/about", label: "About" },
+  { to: "/projects", label: "Projects" },
+  { to: "/donate", label: "Donate" },
+  { to: "/volunteer", label: "Volunteer" },
+  { to: "/contact", label: "Contact" },
+];
+
+function Navbar(){
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const dropdownRef = useRef();
 
   useEffect(() => {
-    // This effect handles the "click outside to close" functionality
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsDropdownOpen(false);
+    const closeOnOutsideClick = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setDropdownOpen(false);
       }
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    // Cleanup the event listener when the component unmounts
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
+    document.addEventListener("mousedown", closeOnOutsideClick);
+    return () => document.removeEventListener("mousedown", closeOnOutsideClick);
   }, []);
 
-  // This is the definitive "Await and Navigate" pattern to prevent race conditions
   const handleLogout = async () => {
-    // Immediately close the dropdown for a good UI response
-    setIsDropdownOpen(false); 
-    
-    try {
-      // Pause the function here until Firebase confirms the logout is complete
-      await logout();
-      
-      // AFTER the logout is complete, then navigate the user away.
-      navigate('/login');
-    } catch (error) {
-        console.error("Failed to log out:", error);
-    }
+    setDropdownOpen(false);
+    setMenuOpen(false);
+    await logout();
+    navigate("/login");
   };
 
   return (
-    <nav className="navbar">
-      <div className="container navbar-container">
-        <Link to="/" className="nav-logo">HOPE CONNECT</Link>
-        
-        <ul className="nav-menu">
-            <li><Link to="/" className="nav-link">Home</Link></li>
-            <li><Link to="/about" className="nav-link">About</Link></li>
-            <li><Link to="/projects" className="nav-link">Projects</Link></li>
-            <li><Link to="/donate" className="nav-link">Donate</Link></li>
-            <li><Link to="/volunteer" className="nav-link">Volunteer</Link></li>
-            <li><Link to="/contact" className="nav-link">Contact</Link></li>
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-lg">
+      <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+        <Link to="/" className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent hover:from-blue-700 hover:to-purple-700 transition-all duration-300">
+          HOPE CONNECT
+        </Link>
+
+        <ul className="hidden md:flex space-x-8">
+          {links.map(({ to, label }) => (
+            <li key={to}>
+              <Link to={to} className="text-gray-700 hover:text-blue-600 transition duration-200 font-medium" disabled={user ? false: true}>
+                {label}
+              </Link>
+            </li>
+          ))}
         </ul>
-        
-        <div>
-          {/* This component only renders for logged-in users, so we can assume `user` exists */}
+
+        <div className="flex items-center space-x-4">
+          <button className="md:hidden p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 rounded-md" onClick={() => setMenuOpen(!menuOpen)}>
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+
           {user && (
-            <div className="user-menu" ref={dropdownRef}>
-              <img 
-                src={user.photoURL} 
-                alt={user.displayName} 
-                style={{ height: '40px', width: '40px', borderRadius: '50%', cursor: 'pointer' }}
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)} 
-              />
-              
-              {isDropdownOpen && (
-                <div className="user-dropdown">
-                  <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid #eee', color: '#666' }}>
-                    Signed in as <br/>
-                    <strong style={{ color: '#333' }}>{user.displayName}</strong>
+            <div className="relative" ref={dropdownRef}>
+              <img src={user.photoURL} alt={user.displayName} className="h-10 w-10 rounded-full cursor-pointer hover:ring-2 hover:ring-blue-500 shadow-md" onClick={() => setDropdownOpen(!dropdownOpen)} />
+              {dropdownOpen && (
+                <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border py-2 z-50">
+                  <div className="px-4 py-3 border-b text-sm text-gray-600">
+                    Signed in as <br /><strong className="text-gray-900">{user.displayName}</strong>
                   </div>
-                  <button onClick={handleLogout} className="logout-button">
+                  <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-50 transition">
                     Logout
                   </button>
                 </div>
@@ -81,6 +77,22 @@ const Navbar = () => {
           )}
         </div>
       </div>
+
+      {menuOpen && (
+        <div className="md:hidden border-t bg-white px-2 pt-2 pb-3 space-y-1">
+          {links.map(({ to, label }) => (
+            <Link key={to} to={to} className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md" onClick={() => setMenuOpen(false)}>
+              {label}
+            </Link>
+          ))}
+
+          {user && (
+            <button onClick={handleLogout} className="block w-full text-left px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md">
+              Logout
+            </button>
+          )}
+        </div>
+      )}
     </nav>
   );
 };

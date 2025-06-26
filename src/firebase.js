@@ -19,29 +19,18 @@ const firebaseConfig = {
   measurementId: "G-WNWB1R9JT9"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// --- HERE ARE THE CRUCIAL ADDITIONS ---
-
-// 1. Get the Auth service
 export const auth = getAuth(app);
 
-// 2. Create an instance of the Google provider
 export const googleProvider = new GoogleAuthProvider();
 
-// 3. A helper function to get the current user's ID token for your backend
 export const getCurrentUserToken = async () => {
     if (!auth.currentUser) {
-        // If no user is logged in, you can't get a token
         return null;
     }
-    // This gets the JWT from Firebase that you will send to your Flask backend
     return await getIdToken(auth.currentUser);
 };
 
-// 4. We can also re-export onAuthStateChanged for convenience
 export { onAuthStateChanged };
 
-// Note: We are not exporting `getAnalytics` because our auth system doesn't need it.
-// You can keep it if you plan to use analytics, but it's not required for login.
