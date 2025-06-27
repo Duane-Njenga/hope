@@ -6,7 +6,6 @@ import HomePage from "./pages/Home";
 import LoginPage from "./pages/LoginPage";
 import ProjectsPage from "./pages/Projects";
 import RegisterPage from "./pages/Register";
-import VolunteerPage from "./pages/Volunteer";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const routes = [
@@ -20,11 +19,7 @@ const routes = [
   },
   {
     path: "/",
-    element: (
-      <ProtectedRoute>
-        <App />
-      </ProtectedRoute>
-    ),
+    element: <App />,
     children: [
       {
         path: "/",
@@ -40,11 +35,11 @@ const routes = [
       },
       {
         path: "/donate",
-        element: <DonatePage />,
-      },
-      {
-        path: "/volunteer",
-        element: <VolunteerPage />,
+        element: (
+          <ProtectedRoute>
+            <DonatePage />
+          </ProtectedRoute>
+        ),
       },
       {
         path: "/contact",

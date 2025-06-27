@@ -6,8 +6,8 @@ const links = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About" },
   { to: "/projects", label: "Projects" },
-  { to: "/donate", label: "Donate" },
-  { to: "/volunteer", label: "Volunteer" },
+  { to: "/donate", label: "Donate", protected: true },
+  { to: "/volunteer", label: "Volunteer", protected: true },
   { to: "/contact", label: "Contact" },
 ];
 
@@ -36,6 +36,14 @@ function Navbar(){
     navigate("/login");
   };
 
+  const handleProtectedClick = (e, to, isProtected) => {
+    if (isProtected && !user) {
+      e.preventDefault();
+      alert("Please login to access this page");
+      navigate("/login");
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white shadow-lg">
       <div className="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
@@ -44,9 +52,13 @@ function Navbar(){
         </Link>
 
         <ul className="hidden md:flex space-x-8">
-          {links.map(({ to, label }) => (
+          {links.map(({ to, label, protected: isProtected }) => (
             <li key={to}>
-              <Link to={to} className="text-gray-700 hover:text-blue-600 transition duration-200 font-medium" disabled={user ? false: true}>
+              <Link
+                to={to}
+                onClick={(e) => handleProtectedClick(e, to, isProtected)}
+                className="text-gray-700 hover:text-blue-600 transition duration-200 font-medium"
+              >
                 {label}
               </Link>
             </li>
@@ -54,11 +66,15 @@ function Navbar(){
         </ul>
 
         <div className="flex items-center space-x-4">
-          <button className="md:hidden p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 rounded-md" onClick={() => setMenuOpen(!menuOpen)}>
-            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
+          
+          {!user && (
+            <button
+              onClick={() => navigate("/login")}
+              className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-800 transition cursor-pointer"
+            >
+              Login
+            </button>
+          )}
 
           {user && (
             <div className="relative" ref={dropdownRef}>
@@ -76,16 +92,42 @@ function Navbar(){
               )}
             </div>
           )}
+
+          <button className="md:hidden p-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 rounded-md" onClick={() => setMenuOpen(!menuOpen)}>
+            <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </div>
       </div>
 
       {menuOpen && (
         <div className="md:hidden border-t bg-white px-2 pt-2 pb-3 space-y-1">
-          {links.map(({ to, label }) => (
-            <Link key={to} to={to} className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md" onClick={() => setMenuOpen(false)}>
+          {links.map(({ to, label, protected: isProtected }) => (
+            <Link
+              key={to}
+              to={to}
+              onClick={(e) => {
+                handleProtectedClick(e, to, isProtected);
+                setMenuOpen(false);
+              }}
+              className="block px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-50 rounded-md"
+            >
               {label}
             </Link>
           ))}
+
+          {!user && (
+            <button
+              onClick={() => {
+                setMenuOpen(false);
+                navigate("/login");
+              }}
+              className="block w-full px-3 py-2 bg-blue-600 text-white rounded hover:bg-blue-800 transition cursor-pointe"
+            >
+              Login
+            </button>
+          )}
 
           {user && (
             <button onClick={handleLogout} className="block w-full border-2 text-left px-3 py-2 text-gray-700 hover:text-blue-600 hover:bg-gray-100 rounded-md cursor-pointer">
