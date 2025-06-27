@@ -6,7 +6,9 @@ import HomePage from "./pages/Home";
 import LoginPage from "./pages/LoginPage";
 import ProjectsPage from "./pages/Projects";
 import RegisterPage from "./pages/Register";
+import SuperAdminPage from "./pages/Superadmin";
 import ProtectedRoute from "./components/ProtectedRoute";
+import SuperAdminRoute from "./components/SuperadminRoute";
 
 const routes = [
   {
@@ -16,6 +18,14 @@ const routes = [
   {
     path: "/register",
     element: <RegisterPage />,
+  },
+  {
+    path: "/admin",
+    element: (
+      <SuperAdminRoute>
+        <SuperAdminPage />
+      </SuperAdminRoute>
+    ),
   },
   {
     path: "/",

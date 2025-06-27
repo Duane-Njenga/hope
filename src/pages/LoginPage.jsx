@@ -39,15 +39,19 @@ const handleSubmit = async (e) => {
     }
 
     const data = await res.json();
-    console.log(data);
-    
-    localStorage.setItem('access_token', data.access_token);
-    setToken(data.access_token);
-    setUser({
-      email: email,
+
+    const userData = {
+      email,
       id: data.id,
       role: data.role,
-    });
+    };
+
+    localStorage.setItem('access_token', data.access_token);
+    localStorage.setItem('user', JSON.stringify(userData));
+
+    setToken(data.access_token);
+    setUser(userData);
+
 
   } catch (err) {
     setError(err.message || 'Login failed');
