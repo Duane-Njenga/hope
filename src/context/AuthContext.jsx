@@ -1,6 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from "react";
 import { auth, googleProvider, onAuthStateChanged } from "../firebase";
 import { signInWithPopup, signOut } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
 
 const AuthContext = createContext();
 
@@ -8,7 +9,6 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);   
   const [token, setToken] = useState(null); 
   const [isLoading, setIsLoading] = useState(true);
-
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
       if (firebaseUser) {
@@ -31,6 +31,8 @@ export const AuthProvider = ({ children }) => {
             id: data.id,
             role: data.role,
           });
+          
+
         } catch (err) {
           console.error("Backend login failed:", err);
           setUser(null);

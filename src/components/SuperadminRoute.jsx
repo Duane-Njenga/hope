@@ -4,7 +4,9 @@ import { useAuth } from '../context/AuthContext';
 
 const SuperAdminRoute = ({ children }) => {
   const { isLoading } = useAuth();
-    console.log(JSON.parse(localStorage.getItem("user")))
+    const user = JSON.parse(localStorage.getItem("user"))
+    console.log(user);
+    
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -13,11 +15,11 @@ const SuperAdminRoute = ({ children }) => {
     );
   }
 
-//   if (!user || user.role !== 'admin') {
-//     return <Navigate to="/" replace />;
-//   }
+  if (!user || user.role !== 'admin') {
+    return <Navigate to="/" replace />;
+  }
 
-//   return children;
+  return children;
 };
 
 export default SuperAdminRoute;

@@ -4,16 +4,19 @@ import { useNavigate } from 'react-router-dom';
 import { FaUsers, FaCalendarAlt, FaDonate, FaTrash, FaSignOutAlt } from 'react-icons/fa';
 
 const SuperAdminPage = () => {
-  const { user, logout, token } = useAuth();
+  const { logout, token } = useAuth();
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState('users');
   const [users, setUsers] = useState([]);
-  const [events, setEvents] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [donations, setDonations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+    const user = JSON.parse(localStorage.getItem("user"))
+
+    
   useEffect(() => {
     fetchData();
   }, [activeTab]);
@@ -23,18 +26,25 @@ const SuperAdminPage = () => {
     setError('');
     try {
       const endpoints = {
-        users: '/admin/users',
-        events: '/admin/events',
-        donations: '/admin/donations',
+        users: '/users',
+        projects: '/projects',
+        donations: '/donations',
       };
       const response = await fetch(`http://localhost:5555${endpoints[activeTab]}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!response.ok) throw new Error('Failed to fetch data');
       const data = await response.json();
-      if (activeTab === 'users') setUsers(data);
-      if (activeTab === 'events') setEvents(data);
-      if (activeTab === 'donations') setDonations(data);
+        if (activeTab === 'users') {
+            setUsers(data)
+            
+        };
+      if (activeTab === 'projects') setProjects(data);
+        if (activeTab === 'donations') {
+            setDonations(data);
+            console.log(data);
+            
+        }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -45,12 +55,12 @@ const SuperAdminPage = () => {
   const handleDeleteEvent = async (id) => {
     if (!window.confirm('Delete this event?')) return;
     try {
-      const res = await fetch(`http://localhost:5555/admin/events/${id}`, {
+      const res = await fetch(`http://localhost:5555/projects/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error('Delete failed');
-      setEvents(events.filter(e => e.id !== id));
+      setProjects(projects.filter(p => p.id !== id));
     } catch (err) {
       alert(err.message);
     }
@@ -63,7 +73,12 @@ const SuperAdminPage = () => {
 
   const TabButton = ({ tab, icon: Icon, count }) => (
     <button
-      onClick={() => setActiveTab(tab)}
+          onClick={() => {
+              setActiveTab(tab)
+              console.log(activeTab);
+          }
+              
+      }
       className={`px-4 py-2 rounded ${activeTab === tab ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
     >
       <Icon className="inline mr-2" /> {tab.charAt(0).toUpperCase() + tab.slice(1)} ({count})
@@ -76,14 +91,14 @@ const SuperAdminPage = () => {
         <h1 className="text-2xl font-bold">Super Admin Dashboard</h1>
         <div>
           <span className="mr-4">{user.email}</span>
-          <button onClick={handleLogout} className="text-red-500">Logout</button>
+          <button onClick={handleLogout} className="text-black bg-red-500 p-2 rounded-2xl hover:text-white hover:bg-red-600 cursor-pointer">Logout</button>
         </div>
       </header>
 
-      <div className="flex gap-4 mb-6">
-        <TabButton tab="users" icon={FaUsers} count={users.length} />
-        <TabButton tab="events" icon={FaCalendarAlt} count={events.length} />
-        <TabButton tab="donations" icon={FaDonate} count={donations.length} />
+      <div className="flex gap-4 mb-6 " >
+        <TabButton className="cursor-pointer" tab="users" icon={FaUsers} count={users.length} />
+        <TabButton className="cursor-pointer" tab="projects" icon={FaCalendarAlt} count={projects.length} />
+        <TabButton className="cursor-pointer" tab="donations" icon={FaDonate} count={donations.length} />
       </div>
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
@@ -112,15 +127,15 @@ const SuperAdminPage = () => {
             </table>
           )}
 
-          {activeTab === 'events' && (
+          {activeTab === 'projects' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {events.map(e => (
-                <div key={e.id} className="border p-4 rounded relative">
-                  <h3 className="font-bold mb-2">{e.type}</h3>
-                  <p>{e.description}</p>
-                  <p className="text-sm text-gray-500">{new Date(e.date).toLocaleDateString()}</p>
+              {projects.map(p => (
+                <div key={p.id} className="border p-4 rounded relative">
+                  <h3 className="font-bold mb-2">{p.type}</h3>
+                  <p>{p.description}</p>
+                  <p className="text-sm text-gray-500">{new Date(p.date).toLocaleDateString()}</p>
                   <button
-                    onClick={() => handleDeleteEvent(e.id)}
+                    onClick={() => handleDeleteEvent(p.id)}
                     className="absolute top-2 right-2 text-red-500"
                   >
                     <FaTrash />
@@ -134,16 +149,16 @@ const SuperAdminPage = () => {
             <table className="w-full">
               <thead>
                 <tr>
-                  <th>ID</th><th>Donor</th><th>Type</th><th>Amount/Description</th>
+                  <th>ID</th><th>Group</th><th>Type</th><th>Amount/Description</th>
                 </tr>
               </thead>
               <tbody>
                 {donations.map(d => (
                   <tr key={d.id} className="border-t">
                     <td>{d.id}</td>
-                    <td>{d.donor_name}</td>
-                    <td>{d.donation_type}</td>
-                    <td>{d.donation_type === 'Money' ? `KES ${d.amount}` : d.description}</td>
+                    <td>{d.group}</td>
+                    <td>{d.type}</td>
+                    <td>{d.type === 'money' ? `KES ${d.amount}` : d.details}</td>
                   </tr>
                 ))}
               </tbody>
