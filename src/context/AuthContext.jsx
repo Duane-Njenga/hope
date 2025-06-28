@@ -30,6 +30,7 @@ export const AuthProvider = ({ children }) => {
             email: firebaseUser.email,
             id: data.id,
             role: data.role,
+            access_token:data.access_token
           });
           
 
@@ -61,6 +62,7 @@ export const AuthProvider = ({ children }) => {
       await signOut(auth);
       setUser(null);
       setToken(null);
+      localStorage.clear()
     } catch (err) {
       console.error("Logout error:", err);
     }

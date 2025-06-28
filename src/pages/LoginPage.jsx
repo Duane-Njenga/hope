@@ -15,11 +15,15 @@ const LoginPage = () => {
 
 
 
-useEffect(() => {
-  if (user) {
-    navigate('/');
-  }
-}, [user]);
+  useEffect(() => {
+    if (user) {
+      if (user.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/');
+      }
+    }
+  }, [user, navigate]);
 
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -41,6 +45,7 @@ const handleSubmit = async (e) => {
     const data = await res.json();
 
     const userData = {
+      access_token:data.access_token,
       email,
       id: data.id,
       role: data.role,

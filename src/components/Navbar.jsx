@@ -7,7 +7,6 @@ const links = [
   { to: "/about", label: "About" },
   { to: "/projects", label: "Projects" },
   { to: "/donate", label: "Donate", protected: true },
-  { to: "/volunteer", label: "Volunteer", protected: true },
   { to: "/contact", label: "Contact" },
 ];
 
